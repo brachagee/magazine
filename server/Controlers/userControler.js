@@ -4,7 +4,7 @@ const dotenv = require('dotenv')
 
 dotenv.config();
 
-const register = async (req, res) => {
+const register = async(req, res) => {
     console.log("enter to register")
     try {
         let result = await User.findOne({
@@ -14,8 +14,7 @@ const register = async (req, res) => {
         if (result) {
             console.log(`email in use ${result}`)
             res.status(400).json({ message: "Failed! Email is already in use!" });
-        }
-        else {
+        } else {
             let newUser = new User(req.body)
             console.log(`new user ${newUser}`)
             await newUser.save()
@@ -26,8 +25,7 @@ const register = async (req, res) => {
             console.log(`decoded ${decoded}`)
             res.status(200).json({ "user": newUser, message: "user was registerd succesfuly", "token": token })
         }
-    }
-    catch (err) {
+    } catch (err) {
         console.log("error from catch" + err)
         res.status(500).json({ error: err.message, message: "cannot create new user" })
     }
@@ -36,12 +34,12 @@ const register = async (req, res) => {
 
 
 
-const signIn = async (req, res) => {
+const signIn = async(req, res) => {
     try {
         console.log("enter to sign in")
         const user = await User.findOne({
-            email: req.body.email
-            , password: req.body.password
+            email: req.body.email,
+            password: req.body.password
         })
         if (user) {
             console.log(user)
@@ -49,11 +47,9 @@ const signIn = async (req, res) => {
             let decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
             console.log(`token ${token}  decoded ${decoded}`)
             res.status(200).json({ "user": user, "token": token, message: "user was logged in succesfully" })
-        }
-        else
+        } else
             res.status(400).json({ message: "Failed! Email does not exist pleese register first!" })
-    }
-    catch {
+    } catch {
         (err) => {
             console.log(err + "catch sign in user")
             res.status(500).json({ error: err, message: "cannot sign in user " })
@@ -62,19 +58,17 @@ const signIn = async (req, res) => {
     }
 }
 
-async function getRecepies(req, res) {
+async function getMagazines(req, res) {
     try {
-        console.log("enter to getRecepies")
+        console.log("enter to getMagazines")
         let user = await User.findOne({ email: req.params.email })
         console.log("user " + user)
-        console.log("recepies " + user.recepies.length)
-        console.log(user.recepies.populate('recepies'))
-        res.status(200).json(user.recepies.populate('recepies'))
-    }
-
-    catch {
+        console.log("recepies " + user.magazines.length)
+        console.log(user.magazines.populate('magazines'))
+        res.status(200).json(user.magazines.populate('magazines'))
+    } catch {
         (err) => {
-            res.status(500).send({ error: err, message: "cannot find user recipes " })
+            res.status(500).send({ error: err, message: "cannot find user magazines " })
         }
     }
 
@@ -93,4 +87,4 @@ async function updateUser(req, res) {
         res.status(500).json({ "message": "canot update user", error: error })
     }
 }
-module.exports = { register, signIn, updateUser, getRecepies }
+module.exports = { register, signIn, updateUser, getMagazines }
